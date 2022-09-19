@@ -1,0 +1,30 @@
+on: [push]
+
+env:
+  AZURE_RESOURCE_GROUP: testgroup
+  BLOB_STORAGE_ACCOUNT_NAME: testcontainer
+# name: AzureARMDeploy
+
+jobs:
+    modules:
+      runs-on: ubuntu-latest
+      steps:
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Deploy to storage using CLI
+        uses: azure/CLI@v1
+        env: # Or as an environment variable
+          AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
+          AZURE_STORAGE_ACCESS_KEY: ${{ secrets.AZURE_STORAGE_ACCESS_KEY }}
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        with:
+          azcliversion: latest
+          inlineScript: |          
+            az storage blob upload --file ./Demo.txt --container-name testcontainer --name Demo.txt
